@@ -1,14 +1,12 @@
 package gg.gianluca.allowedops.listener;
 
 import gg.gianluca.allowedops.AllowedOPsPlugin;
-import gg.gianluca.allowedops.config.PluginConfig;
+import gg.gianluca.allowedops.enforcement.OpEnforcement;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-
-import java.util.Map;
 
 public final class OpValidateLoginListener implements Listener {
 
@@ -30,21 +28,11 @@ public final class OpValidateLoginListener implements Listener {
         }
 
         final var snapshot = profile.get();
-        if (!Bukkit.getOfflinePlayer(snapshot.uuid()).isOp()) {
-            return;
-        }
-
-        if (plugin.repository().isAllowed(snapshot.uuid())) {
+        if (!OpEnforcement.shouldKick(plugin, snapshot.uuid(), Bukkit.getOfflinePlayer(snapshot.uuid()).isOp())) {
             return;
         }
 
         event.kickMessage(plugin.pluginConfig().kickMessageComponent());
-        plugin.discord().send(
-                PluginConfig.DiscordAlert.UNAUTHORIZED_OP,
-                Map.of(
-                        "player", snapshot.name(),
-                        "uuid", snapshot.uuid().toString()
-                )
-        );
+        OpEnforcement.notifyUnauthorizedOp(plugin, snapshot.name(), snapshot.uuid());
     }
 }

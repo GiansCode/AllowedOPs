@@ -26,6 +26,8 @@ public final class PluginConfig {
     private final int sqlPoolSize;
     private final String kickMessage;
     private final long saveIntervalTicks;
+    private final boolean checkOpKickSchedulerEnabled;
+    private final long checkOpKickSchedulerIntervalTicks;
     private final boolean discordEnabled;
     private final String discordWebhookUrl;
     private final Map<DiscordAlert, Boolean> discordAlerts;
@@ -41,6 +43,8 @@ public final class PluginConfig {
             final int sqlPoolSize,
             final String kickMessage,
             final long saveIntervalTicks,
+            final boolean checkOpKickSchedulerEnabled,
+            final long checkOpKickSchedulerIntervalTicks,
             final boolean discordEnabled,
             final String discordWebhookUrl,
             final Map<DiscordAlert, Boolean> discordAlerts,
@@ -55,6 +59,8 @@ public final class PluginConfig {
         this.sqlPoolSize = sqlPoolSize;
         this.kickMessage = kickMessage;
         this.saveIntervalTicks = saveIntervalTicks;
+        this.checkOpKickSchedulerEnabled = checkOpKickSchedulerEnabled;
+        this.checkOpKickSchedulerIntervalTicks = checkOpKickSchedulerIntervalTicks;
         this.discordEnabled = discordEnabled;
         this.discordWebhookUrl = discordWebhookUrl;
         this.discordAlerts = discordAlerts;
@@ -86,6 +92,8 @@ public final class PluginConfig {
                 Math.max(1, config.getInt("sql.pool-size", 2)),
                 config.getString("kick-message", "&cYou are not authorized to have operator privileges on this server."),
                 config.getLong("save-interval-ticks", 6000L),
+                config.getBoolean("check-op-kick-scheduler.enabled", true),
+                config.getLong("check-op-kick-scheduler.interval-ticks", 600L),
                 config.getBoolean("discord.enabled", false),
                 config.getString("discord.webhook-url", ""),
                 alerts,
@@ -131,6 +139,14 @@ public final class PluginConfig {
 
     public long saveIntervalTicks() {
         return saveIntervalTicks;
+    }
+
+    public boolean checkOpKickSchedulerEnabled() {
+        return checkOpKickSchedulerEnabled;
+    }
+
+    public long checkOpKickSchedulerIntervalTicks() {
+        return checkOpKickSchedulerIntervalTicks;
     }
 
     public boolean discordEnabled() {

@@ -17,6 +17,12 @@ kick-message: "&cYou are not authorized to have operator privileges on this serv
 # How often to flush in-memory changes to storage (in ticks). 6000 = 5 minutes.
 save-interval-ticks: 6000
 
+# Periodically scan online players and kick unauthorized OPs (e.g. after /op while online).
+check-op-kick-scheduler:
+  enabled: true
+  # 600 ticks = 30 seconds.
+  interval-ticks: 600
+
 discord:
   enabled: false
   webhook-url: ""
