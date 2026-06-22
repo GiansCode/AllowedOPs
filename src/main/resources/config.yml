@@ -1,0 +1,34 @@
+# If true, only the console may run /allowedops commands.
+only-console-can-execute: true
+
+storage:
+  # flatfile or sql
+  type: flatfile
+
+sql:
+  jdbc-url: "jdbc:mysql://localhost:3306/minecraft"
+  username: "user"
+  password: "password"
+  table: "allowed_ops"
+  pool-size: 2
+
+kick-message: "&cYou are not authorized to have operator privileges on this server."
+
+# How often to flush in-memory changes to storage (in ticks). 6000 = 5 minutes.
+save-interval-ticks: 6000
+
+discord:
+  enabled: false
+  webhook-url: ""
+  alerts:
+    unauthorized-op: true
+    allowed-op-join: false
+    add-op: true
+    remove-op: true
+    reload: false
+  messages:
+    unauthorized-op: "**Unauthorized OP**: {player} ({uuid}) attempted to join with OP."
+    allowed-op-join: "**Allowed OP**: {player} ({uuid}) joined with OP."
+    add-op: "**OP Added**: {target} added by {executor}."
+    remove-op: "**OP Removed**: {target} removed by {executor}."
+    reload: "**Config Reloaded** by {executor}."

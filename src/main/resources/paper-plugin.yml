@@ -1,0 +1,21 @@
+name: AllowedOPs
+version: '${project.version}'
+main: gg.gianluca.allowedops.AllowedOPsPlugin
+description: Restrict operator privileges to an allowlist
+api-version: '1.21'
+authors:
+  - Gianluca
+
+permissions:
+  allowedops.add:
+    description: Allows adding players to the allowed OP list
+    default: false
+  allowedops.remove:
+    description: Allows removing players from the allowed OP list
+    default: false
+  allowedops.list:
+    description: Allows listing allowed OPs
+    default: false
+  allowedops.reload:
+    description: Allows reloading the plugin configuration
+    default: false
