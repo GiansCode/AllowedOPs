@@ -2,10 +2,10 @@ package gg.gianluca.allowedops;
 
 import gg.gianluca.allowedops.config.PluginConfig;
 import gg.gianluca.allowedops.discord.DiscordNotifier;
-import gg.gianluca.allowedops.listener.OpCheckListener;
+import gg.gianluca.allowedops.listener.AllowedOpJoinListener;
+import gg.gianluca.allowedops.listener.OpValidateLoginListener;
 import gg.gianluca.allowedops.storage.AllowedOpsRepository;
 import gg.gianluca.allowedops.command.AllowedOpsCommandRegistrar;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,9 +21,9 @@ public final class AllowedOPsPlugin extends JavaPlugin {
         saveDefaultConfig();
         reloadLocalState();
 
-        getServer().getPluginManager().registerEvents(new OpCheckListener(this), this);
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event ->
-                new AllowedOpsCommandRegistrar(this).register(event.registrar()));
+        getServer().getPluginManager().registerEvents(new OpValidateLoginListener(this), this);
+        getServer().getPluginManager().registerEvents(new AllowedOpJoinListener(this), this);
+        new AllowedOpsCommandRegistrar(this).register();
 
         scheduleSaveTask();
         getLogger().info("AllowedOPs enabled with " + repository.size() + " allowed operator(s).");

@@ -9,35 +9,23 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Map;
 
-public final class OpCheckListener implements Listener {
+public final class AllowedOpJoinListener implements Listener {
 
     private final AllowedOPsPlugin plugin;
 
-    public OpCheckListener(final AllowedOPsPlugin plugin) {
+    public AllowedOpJoinListener(final AllowedOPsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         final var player = event.getPlayer();
-        if (!player.isOp()) {
+        if (!player.isOp() || !plugin.repository().isAllowed(player.getUniqueId())) {
             return;
         }
 
-        if (plugin.repository().isAllowed(player.getUniqueId())) {
-            plugin.discord().send(
-                    PluginConfig.DiscordAlert.ALLOWED_OP_JOIN,
-                    Map.of(
-                            "player", player.getName(),
-                            "uuid", player.getUniqueId().toString()
-                    )
-            );
-            return;
-        }
-
-        player.kick(plugin.pluginConfig().kickMessageComponent());
         plugin.discord().send(
-                PluginConfig.DiscordAlert.UNAUTHORIZED_OP,
+                PluginConfig.DiscordAlert.ALLOWED_OP_JOIN,
                 Map.of(
                         "player", player.getName(),
                         "uuid", player.getUniqueId().toString()

@@ -1,13 +1,9 @@
 package gg.gianluca.allowedops.command.sub;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
 import gg.gianluca.allowedops.AllowedOPsPlugin;
 import gg.gianluca.allowedops.command.CommandRequirements;
-import gg.gianluca.allowedops.command.TargetArgument;
 import gg.gianluca.allowedops.config.PluginConfig;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 
 import java.util.Map;
 
@@ -21,36 +17,33 @@ public final class AddSubcommand {
         this.plugin = plugin;
     }
 
-    public LiteralArgumentBuilder<CommandSourceStack> build(final Commands registrar) {
-        return Commands.literal("add")
-                .requires(source -> CommandRequirements.hasPermission(source, PERMISSION))
-                .then(TargetArgument.playerOrUuid("target")
-                        .executes(this::execute));
-    }
-
-    private int execute(final CommandContext<CommandSourceStack> context) {
-        final var target = CommandRequirements.resolveTarget(TargetArgument.getTargetInput(context, "target"));
-        if (target.isEmpty()) {
-            CommandRequirements.sendError(context.getSource(), "Unknown player or UUID.");
-            return 0;
+    public void execute(final CommandSourceStack source, final String targetInput) {
+        if (!CommandRequirements.hasPermission(source, PERMISSION)) {
+            CommandRequirements.sendError(source, "You do not have permission to do that.");
+            return;
         }
-        final CommandRequirements.ResolvedTarget resolved = target.get();
 
+        final var target = CommandRequirements.resolveTarget(targetInput);
+        if (target.isEmpty()) {
+            CommandRequirements.sendError(source, "Unknown player or UUID.");
+            return;
+        }
+
+        final CommandRequirements.ResolvedTarget resolved = target.get();
         if (!plugin.repository().add(resolved.uuid())) {
-            CommandRequirements.sendError(context.getSource(), resolved.displayName() + " is already on the allowed OP list.");
-            return 0;
+            CommandRequirements.sendError(source, resolved.displayName() + " is already on the allowed OP list.");
+            return;
         }
 
         plugin.flushStorage();
-        CommandRequirements.sendSuccess(context.getSource(), "Added " + resolved.displayName() + " (" + resolved.uuidString() + ") to the allowed OP list.");
+        CommandRequirements.sendSuccess(source, "Added " + resolved.displayName() + " (" + resolved.uuidString() + ") to the allowed OP list.");
 
         plugin.discord().send(
                 PluginConfig.DiscordAlert.ADD_OP,
                 Map.of(
                         "target", resolved.displayName() + " (" + resolved.uuidString() + ")",
-                        "executor", CommandRequirements.executorName(context.getSource())
+                        "executor", CommandRequirements.executorName(source)
                 )
         );
-        return 1;
     }
 }

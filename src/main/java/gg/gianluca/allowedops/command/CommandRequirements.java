@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
@@ -19,14 +20,34 @@ public final class CommandRequirements {
     }
 
     public static boolean canUseRoot(final AllowedOPsPlugin plugin, final CommandSourceStack source) {
+        return canUseRoot(plugin, source.getSender());
+    }
+
+    public static boolean canUseRoot(final AllowedOPsPlugin plugin, final CommandSender sender) {
         if (plugin.pluginConfig().onlyConsoleCanExecute()) {
-            return source.getSender() instanceof org.bukkit.command.ConsoleCommandSender;
+            return isConsole(sender);
         }
         return true;
     }
 
     public static boolean hasPermission(final CommandSourceStack source, final String permission) {
-        return source.getSender().hasPermission(permission);
+        return hasPermission(source.getSender(), permission);
+    }
+
+    public static boolean hasPermission(final CommandSender sender, final String permission) {
+        if (isConsole(sender)) {
+            return true;
+        }
+        return sender.hasPermission(permission);
+    }
+
+    public static boolean isConsole(final CommandSender sender) {
+        if (sender instanceof ConsoleCommandSender) {
+            return true;
+        }
+
+        // Paper's command stack may wrap the dedicated server console.
+        return !(sender instanceof Player) && "CONSOLE".equalsIgnoreCase(sender.getName());
     }
 
     public static void sendError(final CommandSourceStack source, final String message) {
@@ -43,7 +64,7 @@ public final class CommandRequirements {
 
     public static String executorName(final CommandSourceStack source) {
         final CommandSender sender = source.getSender();
-        if (sender instanceof org.bukkit.command.ConsoleCommandSender) {
+        if (isConsole(sender)) {
             return "Console";
         }
         return sender.getName();
@@ -77,7 +98,7 @@ public final class CommandRequirements {
         return Optional.empty();
     }
 
-    private static String resolveName(final UUID uuid, final String fallback) {
+    public static String resolveName(final UUID uuid, final String fallback) {
         final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         return offlinePlayer.getName() != null ? offlinePlayer.getName() : fallback;
     }
